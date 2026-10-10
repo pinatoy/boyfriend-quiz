@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ff7eb6">
+<title>Boyfriend Quiz 💗</title>
+<style>
+:root{--pink:#ff5fa2;--deep:#c72d78;--pale:#fff0f7;--ink:#57213d}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);background:radial-gradient(circle at top left,#ffe0ef,transparent 38%),linear-gradient(135deg,#fff7fb,#ffe7f2);display:flex;justify-content:center;align-items:center;padding:18px}
+.wrap{width:min(100%,570px)}
+.card{background:#ffffffeb;border:1px solid #ffd1e5;border-radius:28px;padding:clamp(20px,5vw,34px);box-shadow:0 18px 55px #c72d7818}
+.top{text-align:center}.heart{font-size:38px;filter:drop-shadow(0 4px 8px #ff9bc5)}h1{font-size:clamp(27px,6vw,36px);margin:8px 0;color:var(--deep);line-height:1.1}.sub{color:#97627d;margin:0 auto 22px;max-width:390px;line-height:1.5}
+.pill{display:inline-block;border-radius:99px;padding:7px 12px;background:var(--pale);color:var(--deep);font-size:12px;font-weight:800;letter-spacing:.06em}
+.rules{background:#fff5fa;border:1px dashed #ffacd0;border-radius:17px;padding:15px;text-align:left;line-height:1.55;font-size:14px;margin:18px 0}
+button{font:inherit;cursor:pointer;border:0;border-radius:15px;padding:13px 17px;font-weight:750;transition:transform .15s,filter .15s}
+button:hover{filter:brightness(.98);transform:translateY(-1px)}button:focus-visible{outline:3px solid #9b4f78;outline-offset:3px}
+.primary{width:100%;color:white;background:linear-gradient(110deg,#ff5fa2,#e64c96);box-shadow:0 8px 18px #ff5fa238}
+.secondary{background:#fff0f7;color:var(--deep);border:1px solid #ffd0e4}
+.hidden{display:none!important}.progressrow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;font-size:13px;font-weight:750;color:#9b5278}.bar{height:8px;background:#ffe3ef;border-radius:99px;overflow:hidden;margin-bottom:23px}.barfill{height:100%;width:0;background:linear-gradient(90deg,#ff91c2,#e83e91);transition:width .25s}
+.question{font-size:23px;line-height:1.3;margin:0 0 20px}.answers{display:grid;gap:10px}.answer{width:100%;display:flex;align-items:center;gap:12px;text-align:left;background:#fff8fb;border:1.5px solid #f6d6e5;color:var(--ink);font-weight:600}.letter{flex:none;width:32px;height:32px;border-radius:10px;background:#ffe3ef;color:#c72d78;display:grid;place-items:center;font-weight:850}.answer.selected{border-color:var(--pink);background:#fff0f7}.answer.correct{border-color:#52b788;background:#effbf5}.answer.wrong{border-color:#f18a9e;background:#fff1f2}.feedback{margin-top:15px;padding:13px;border-radius:14px;background:#fff2f8;line-height:1.5;font-size:14px}.controls{margin-top:18px;display:flex;gap:10px}.controls button{flex:1}.score{font-size:54px;font-weight:900;color:var(--deep);margin:4px 0}.resultbox{background:#fff3f9;border-radius:18px;padding:18px;margin:20px 0;line-height:1.6}.small{font-size:12px;color:#9b7188;line-height:1.5;margin-top:18px;text-align:center}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card top" id="intro">
+  <div class="heart">💗</div>
+  <span class="pill">MINI GAME FOR YOUR BOYFRIEND</span>
+  <h1>Boyfriend Quiz</h1>
+  <p class="sub">Seberapa jago kamu menjawab soal gampang? Buktikan dulu, sayang! 💌</p>
+  <div class="rules">
+    <strong>📚 Cara main</strong><br>
+    • Ada 10 soal pelajaran umum yang gampang.<br>
+    • Setiap jawaban benar = 10 poin.<br>
+    • Kalau salah, ada konsekuensi lucu: diminta kirim PAP yang nyaman buat kamu berdua 😚<br>
+    • Boleh skip permintaan foto kalau tidak nyaman. Game harus tetap seru, bukan memaksa.
+  </div>
+  <button class="primary" id="start">Mulai Kuis 💘</button>
+  <p class="small">Dibuat dengan cinta, sedikit tantangan, dan banyak pink 🎀</p>
+</section>
+
+<section class="card hidden" id="quiz">
+  <div class="progressrow"><span id="count">SOAL 1 DARI 10</span><span id="liveScore">SKOR: 0</span></div>
+  <div class="bar"><div class="barfill" id="barfill"></div></div>
+  <h2 class="question" id="question"></h2>
+  <div class="answers" id="answers"></div>
+  <div class="feedback hidden" id="feedback" aria-live="polite"></div>
+  <div class="controls"><button class="secondary hidden" id="next">Soal berikutnya →</button></div>
+</section>
+
+<section class="card top hidden" id="result">
+  <div class="heart">🎉💗🎉</div>
+  <span class="pill">KUIS SELESAI</span>
+  <h1>Hasilnyaaa!</h1>
+  <div class="score" id="finalScore">0/100</div>
+  <p id="resultMessage"></p>
+  <div class="resultbox" id="consequence"></div>
+  <button class="primary" id="again">Main lagi 💞</button>
+  <p class="small">Ingat: foto hanya kalau sama-sama nyaman. Boleh pilih PAP biasa, selfie senyum, atau pose peace ✌️</p>
+</section>
+</main>
+<script>
+const questions = [
+ {q:"1. Berapa hasil dari 7 × 6?",a:["36","42","48","56"],correct:1,why:"7 × 6 = 42."},
+ {q:"2. Bahasa Inggris dari “meja” adalah …",a:["Chair","Window","Table","Door"],correct:2,why:"“Meja” dalam bahasa Inggris adalah “table”."},
+ {q:"3. Alat untuk mengukur suhu disebut …",a:["Termometer","Penggaris","Kompas","Stopwatch"],correct:0,why:"Termometer digunakan untuk mengukur suhu."},
+ {q:"4. Berapa hasil dari 45 ÷ 5?",a:["7","8","9","10"],correct:2,why:"45 dibagi 5 sama dengan 9."},
+ {q:"5. Lawan kata “hemat” adalah …",a:["Cermat","Boros","Rajin","Teliti"],correct:1,why:"Lawan kata hemat adalah boros."},
+ {q:"6. Planet tempat manusia tinggal adalah …",a:["Mars","Jupiter","Venus","Bumi"],correct:3,why:"Manusia tinggal di planet Bumi."},
+ {q:"7. Singkatan dari “SMK” adalah …",a:["Sekolah Menengah Kejuruan","Sekolah Murid Kreatif","Sistem Menengah Kerja","Sekolah Masyarakat Khusus"],correct:0,why:"SMK adalah Sekolah Menengah Kejuruan."},
+ {q:"8. Berapa hasil dari 100 − 37?",a:["53","63","67","73"],correct:1,why:"100 − 37 = 63."},
+ {q:"9. Perangkat untuk mengetik di komputer adalah …",a:["Speaker","Mousepad","Keyboard","Monitor"],correct:2,why:"Keyboard digunakan untuk mengetik."},
+ {q:"10. Bahasa Inggris dari “terima kasih” adalah …",a:["Good morning","Excuse me","You're welcome","Thank you"],correct:3,why:"“Terima kasih” dalam bahasa Inggris adalah “thank you”."}
+];
+let index=0,score=0,locked=false,wrongCount=0;
+const $=id=>document.getElementById(id);
+function start(){index=0;score=0;wrongCount=0;locked=false;$("intro").classList.add("hidden");$("result").classList.add("hidden");$("quiz").classList.remove("hidden");render()}
+function render(){
+ locked=false;const q=questions[index];
+ $("count").textContent=`SOAL ${index+1} DARI ${questions.length}`;
+ $("liveScore").textContent=`SKOR: ${score}`;
+ $("barfill").style.width=`${index/questions.length*100}%`;
+ $("question").textContent=q.q;$("answers").innerHTML="";$("feedback").classList.add("hidden");$("next").classList.add("hidden");
+ q.a.forEach((answer,i)=>{const b=document.createElement("button");b.className="answer";b.innerHTML=`<span class="letter">${"ABCD"[i]}</span><span></span>`;b.querySelector("span:last-child").textContent=answer;b.addEventListener("click",()=>choose(i,b));$("answers").appendChild(b)});
+}
+function choose(choice,button){
+ if(locked)return;locked=true;const q=questions[index];const buttons=[...$("answers").querySelectorAll("button")];
+ buttons.forEach((b,i)=>{b.disabled=true;if(i===q.correct)b.classList.add("correct")});
+ const good=choice===q.correct;
+ if(good){score+=10;button.classList.add("selected")}else{wrongCount++;button.classList.add("wrong")}
+ $("liveScore").textContent=`SKOR: ${score}`;
+ $("feedback").classList.remove("hidden");
+ $("feedback").textContent=(good?"BENARRR! 🥳 💗 ":"Yah, belum tepat 😚. ")+q.why+(good?"":" Konsekuensi: boleh minta PAP lucu yang nyaman buat kalian berdua 📸");
+ $("next").classList.remove("hidden");$("next").textContent=index===questions.length-1?"Lihat hasil 💘":"Soal berikutnya →";
+ $("barfill").style.width=`${(index+1)/questions.length*100}%`;
+}
+function finish(){
+ $("quiz").classList.add("hidden");$("result").classList.remove("hidden");$("finalScore").textContent=`${score}/100`;
+ $("resultMessage").textContent=score===100?"PERFECT SCORE! Waduh, jago banget kamu! 💖":score>=70?"Wihh, lumayan jago! Tinggal sedikit lagi jadi juara kuis 💗":"Makasih udah main sampai akhir! Yang penting seru-seruan bareng 💞";
+ let msg=wrongCount===0?"Kamu menjawab semuanya dengan benar. Pilih hadiah kecil dari pasangan, atau kasih dia pujian manis! 🥰":`Kamu salah ${wrongCount} soal. Konsekuensi lucu: pasangan boleh minta ${wrongCount===1?"1 PAP":"PAP lucu"} (selfie senyum, pose peace, atau ekspresi kocak)—hanya kalau kamu nyaman. Kalau tidak, ganti dengan kirim emoji atau gombalan! 💌`;
+ $("consequence").textContent=msg;
+}
+$("start").addEventListener("click",start);
+$("next").addEventListener("click",()=>{if(index<questions.length-1){index++;render()}else finish()});
+$("again").addEventListener("click",start);
+</script>
+</body>
+</html>
